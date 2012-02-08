@@ -1,6 +1,36 @@
-# Backbone.Validation v0.4.0
+Backbone.validation by Thomas Pedersen is a useful extension to Backbone which allows us to easily add 
+complex validation rules to our Backbone models. You might be wondering how this extension differs from
+the out-of-the box approach to writing validation rules, so let's briefly review what we learned in the
+basics section.
 
-A validation plugin for [Backbone.js](http://documentcloud.github.com/backbone) inspired by [Backbone.ModelBinding](http://github.com/derickbailey/backbone.modelbinding), and another implementation with a slightly different approach than mine at [Backbone.Validations](http://github.com/n-time/backbone.validations).
+Backbone models support a ```.validate()``` method for adding validation rules to a model, which is undefined 
+unless we override it. If the model and attributes we're using pass our validation rules, ```validate()``` will 
+return nothing, otherwise it can return an error of our choice. Below we can see an example of some simple
+validation against a Photo model's ```src``` attribute.
+
+```javascript
+var Photo = Backbone.Model.extend({
+  validate: function(attrs) {
+    if (src === "") {
+      return "source can't be empty!";
+    }
+  }
+});
+
+var one = new Photo({
+  src : ""
+});
+
+one.bind("error", function(model, error) {
+  alert(model.get("src") + " " + error);
+});
+
+one.set({
+  caption: "this is a photo"
+});
+```
+
+Todo: differences.
 
 ## Getting started
 
@@ -32,7 +62,7 @@ To configure your validation rules, simply add a validation property with a prop
 	  }
 });
 
-See the **built-in validators** section in this readme for a list of the validators and patterns that you can use.
+
 
 ### Validation binding
 
@@ -454,71 +484,4 @@ The message can contain placeholders for arguments that will be replaced:
 * `{1}` will be replaced with the allowed value configured in the validation (or the first one in a range validator)
 * `{2}` will be replaced with the second value in a range validator
 
-## Release notes
 
-#### v0.4.0
-
-* `isValid` returns `undefined` when no validatation has occured and the model has validation
-* Passing `true` to `isValid` forces an validation
-* When specifying multiple validators for one attribute, all can have it's own error message (thanks to [GarethElms](https://github.com/GarethElms))
-* method validator and named method validator can be combined with other built-in validators
-* acceptance validator accepts 'true' as valid (Fixes issue #12)
-* Can configure per view or globally to force update the model with invalid values. This can be very useful when using automatic modelbinding and late validation (e.g. when submitting the form)
-* email pattern is case insensitive
-* Breaking changes (unfortunate, but necessary):
-	* `setDefaultSelector` is removed, and you need to call `configure({selector: 'class'})` instead
-
-#### v0.3.1
-
-* Fixed issue with validated events being triggered before model was updated
-* Added model and an array of invalid attribute names as arguments to the events
-
-#### v0.3.0
-
-* Triggers events when validation is performed (thanks to [GarethElms](https://github.com/GarethElms)):
-	* 'validated' with `true` or `false` as argument
-	* 'validated:valid' when model is valid
-	* 'validated:invalid' when model is invalid
-* Named method validator get the name of the attribute being validate as the second argument (thanks to [goreckm](https://github.com/goreckm))
-* `error` argument passed to the error event raised by Backbone contains an array of errors when validating multiple attributed in one go, otherwise a string
-* Breaking changes (unfortunate, but necessary):
-	* isValid attribute (`model.get('isValid')`) is replaced with a method `model.isValid()`
-	* Default selector is 'name' instead of 'id'
-
-#### v0.2.0
-
-* New validators:
-	* named method
-	* length
-	* acceptance (which is typically used when the user has to accept something (e.g. terms of use))
-	* equalTo
-	* range
-	* rangeLength
-	* oneOf
-* Added possibility to validate entire model by explicitly calling `model.validate()` without any parameters. (Note: `Backbone.Validation.bind(..)` must still be called)
-* required validator can be specified as a method returning either `true` or `false`
-* Can override the default error messages globally
-* Can override the id selector (#) used in the callbacks either globally or per view when binding
-* Improved email pattern for better matching
-* Added new pattern 'digits'
-* Possible breaking changes:
-	* Removed the unused msg parameter when adding custom validators
-	* Number pattern matches negative numbers (Fixes issue #4), decimals and numbers with 1000-separator (e.g. 123.000,45)
-	* Context (this) in the method validators is now the model instead of the global object (Fixes issue #6)
-	* All validators except required and acceptance invalidates null, undefined or empty value. However, required:false can be specified to allow null, undefined or empty value
-* Breaking changes (unfortunate, but necessary):
-	* Required validator no longer invalidates false boolean, use the new acceptance validator instead
-
-#### v0.1.3
-
-* Fixed issue where min and max validators treated strings with leading digits as numbers
-* Fixed issue with undefined Backbone reference when running Backbone in no conflict mode
-* Fixed issue with numeric string with more than one number not being recognized as a number
-
-#### v0.1.2
-
-* Initial release
-
-## License
-
-http://thedersen.mit-license.org/
